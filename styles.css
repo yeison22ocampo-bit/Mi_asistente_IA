@@ -1,17 +1,57 @@
-/* ===== Variables de color (tema oscuro) ===== */
+/* ===== Temas: oscuro (por defecto), claro y color de acento ===== */
 :root {
-  --fondo: #131316;
-  --superficie: #1f1f24;
-  --superficie-2: #2a2a31;
-  --borde: #34343d;
-  --texto: #f2f2f5;
-  --texto-suave: #9a9aa6;
-  --acento: #7c6cf0;
-  --acento-claro: #9d8cf4;
-  --acento-oscuro: #6a5ae0;
+  color-scheme: dark;
+  --fuente-titulo: "Bricolage Grotesque", system-ui, sans-serif;
+  --fuente-texto: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --acento-base: #dd3f7d;
+  --fondo: #150f17;
+  --superficie: #211826;
+  --superficie-2: #2d2233;
+  --borde: #433349;
+  --texto: #f6eef3;
+  --texto-suave: #b4a2b7;
+  --acento: color-mix(in srgb, var(--acento-base) 88%, black);
+  --acento-claro: color-mix(in srgb, var(--acento-base) 65%, white);
+  --acento-oscuro: color-mix(in srgb, var(--acento-base) 70%, black);
   --error: #ff9a9a;
   --ok: #8be3a6;
+  --tubo: #3a2c40;
+  --oro: #e2bd8b;
+  --brillo: 30%;
 }
+
+:root[data-tema="claro"] {
+  color-scheme: light;
+  --fondo: #fbf4f6;
+  --superficie: #ffffff;
+  --superficie-2: #f6e9ef;
+  --borde: #ead3dd;
+  --texto: #2a1822;
+  --texto-suave: #765f6d;
+  --acento-claro: var(--acento);
+  --error: #b3261e;
+  --ok: #1d7a45;
+  --brillo: 22%;
+}
+
+:root[data-tema="nude"] {
+  color-scheme: light;
+  --fondo: #f1e4d8;
+  --superficie: #f8efe6;
+  --superficie-2: #e9d6c6;
+  --borde: #d9c0ab;
+  --texto: #3a2a22;
+  --texto-suave: #7a6153;
+  --acento-claro: var(--acento);
+  --error: #a82a22;
+  --ok: #1d7a45;
+  --brillo: 20%;
+}
+
+/* Colores de labial */
+:root[data-acento="vino"]  { --acento-base: #c2284a; }
+:root[data-acento="malva"] { --acento-base: #9163dc; }
+:root[data-acento="cobre"] { --acento-base: #c0714f; }
 
 /* ===== Reset y base ===== */
 * {
@@ -21,7 +61,7 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--fuente-texto);
   background: var(--fondo);
   color: var(--texto);
   min-height: 100vh;
@@ -239,7 +279,7 @@ input[type="password"] {
 }
 
 .mensaje-error {
-  border: 1px solid #6b3b3b;
+  border: 1px solid color-mix(in srgb, var(--error) 45%, transparent);
   color: var(--error);
 }
 
@@ -398,3 +438,192 @@ button.chip {
     max-width: 65%;
   }
 }
+
+/* ===== Personalización ===== */
+
+/* Transición suave solo mientras se cambia de tema */
+.cambiando,
+.cambiando * {
+  transition: background-color .4s ease, color .4s ease, border-color .4s ease;
+}
+
+/* Fondo: dos resplandores (acento y dorado) que se desplazan muy despacio */
+.fondo-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fondo-decor span {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--acento-base) var(--brillo), transparent), transparent 65%);
+  animation: deriva 26s ease-in-out infinite alternate;
+}
+
+.fondo-decor span:first-child { top: -18vmax; right: -14vmax; }
+
+.fondo-decor span:last-child {
+  bottom: -22vmax;
+  left: -16vmax;
+  background: radial-gradient(circle, color-mix(in srgb, var(--oro) var(--brillo), transparent), transparent 65%);
+  animation-duration: 32s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes deriva {
+  to { transform: translate3d(-6vmax, 5vmax, 0) scale(1.12); }
+}
+
+.app { position: relative; z-index: 1; }
+
+/* Bienvenida: labial que sube al cargar */
+.labial {
+  width: 84px;
+  height: auto;
+  filter: drop-shadow(0 10px 18px color-mix(in srgb, var(--acento-base) 35%, transparent));
+}
+
+.l-barra { fill: var(--acento); }
+.l-brillo { fill: #fff; opacity: .25; }
+.l-oro { fill: var(--oro); }
+.l-tubo { fill: var(--tubo); }
+
+.labial-barra { animation: subir 1.6s cubic-bezier(.3, .7, .2, 1) .35s both; }
+
+@keyframes subir {
+  from { transform: translateY(34px); }
+  to { transform: none; }
+}
+
+.bienvenida h1 {
+  font-family: var(--fuente-titulo);
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+/* Mensajes y entrada */
+.mensaje { animation: aparecer .35s ease-out both; }
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+.mensaje-asistente { border: 1px solid var(--borde); }
+
+.entrada {
+  box-shadow: 0 8px 30px -12px color-mix(in srgb, var(--acento-base) 30%, transparent);
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.entrada:focus-within {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento-base) 22%, transparent);
+}
+
+.chip-acento { color: var(--acento-claro); }
+
+/* Interruptor de tema: sol y luna se cruzan al cambiar */
+.topbar .btn-tema { margin-left: auto; }
+
+.btn-tema svg {
+  grid-area: 1 / 1;
+  transition: transform .5s cubic-bezier(.4, 1.4, .5, 1), opacity .25s;
+}
+
+:root[data-tema="oscuro"] .icono-luna { opacity: 0; transform: rotate(-90deg) scale(.4); }
+:root[data-tema="claro"] .icono-sol,
+:root[data-tema="nude"] .icono-sol { opacity: 0; transform: rotate(90deg) scale(.4); }
+
+/* Selector de color de labial (barra lateral) */
+.apariencia {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--borde);
+}
+
+.apariencia h3 {
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.muestras { display: flex; gap: .7rem; padding: 4px; }
+
+.muestra {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, .45), transparent 45%), var(--m);
+  transition: transform .2s, box-shadow .2s;
+}
+
+.muestra[data-acento="peonia"] { --m: #dd3f7d; }
+.muestra[data-acento="vino"]   { --m: #c2284a; }
+.muestra[data-acento="malva"]  { --m: #9163dc; }
+.muestra[data-acento="cobre"]  { --m: #c0714f; }
+
+.muestra[aria-checked="true"] {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--superficie), 0 0 0 4px var(--m);
+}
+
+/* Selector de tema (oscuro, claro, nude) */
+.opciones-tema { display: flex; gap: .4rem; }
+
+.opcion-tema {
+  flex: 1;
+  font: inherit;
+  font-size: .85rem;
+  padding: .45rem .5rem;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.opcion-tema[aria-checked="true"] {
+  background: color-mix(in srgb, var(--acento-base) 16%, transparent);
+  border-color: var(--acento);
+  color: var(--acento-claro);
+}
+
+/* Sugerencias de la pantalla de bienvenida */
+.sugerencias {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .5rem;
+  max-width: 560px;
+}
+
+.sugerencia {
+  font: inherit;
+  font-size: .88rem;
+  padding: .5rem .9rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--texto);
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+
+.sugerencia:hover { border-color: var(--acento); transform: translateY(-2px); }
+
+/* Respeta a quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .fondo-decor span, .labial-barra, .mensaje { animation: none; }
+  .cambiando, .cambiando *, .btn-tema svg, .muestra, .entrada, .sugerencia { transition: none; }
+    }
