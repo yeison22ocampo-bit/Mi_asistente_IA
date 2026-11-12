@@ -4,6 +4,8 @@ const MODELO = 'deepseek-v4-pro-0813';           // Modo normal: rápido, sin st
 const MODELO_RAZONAMIENTO = 'qwen3.8-2.4t-a95b'; // "Pensamiento Profundo": reasoning puro, exige streaming
 const CLAVE_STORAGE = 'dashscope_api_key'; // Nombre de la clave en sessionStorage
 const PENSAMIENTO_STORAGE = 'pensamiento_profundo'; // Estado del chip "Pensamiento Profundo"
+const TEMA_STORAGE = 'tema_interfaz';       // 'oscuro' | 'claro' | 'nude' (localStorage, persiste entre visitas)
+const ACENTO_STORAGE = 'acento_interfaz';   // peonia | vino | malva | cobre
 const MAX_HISTORIAL = 20;                   // Mensajes recientes que se envían al modelo
 
 // Instrucciones de personalidad del asistente
@@ -35,6 +37,10 @@ const avisoClave = document.getElementById('aviso-clave');
 const btnSidebar = document.getElementById('btn-sidebar');
 const btnNuevo = document.getElementById('btn-nuevo');
 const btnPensamiento = document.getElementById('btn-pensamiento');
+const btnTema = document.getElementById('btn-tema');
+const muestras = document.querySelectorAll('.muestra');
+const opcionesTema = document.querySelectorAll('.opcion-tema');
+const sugerencias = document.querySelectorAll('.sugerencia');
 const chat = document.getElementById('chat');
 const bienvenida = document.getElementById('bienvenida');
 const mensajes = document.getElementById('mensajes');
@@ -53,6 +59,8 @@ let indicadorEscribiendo = null;
 
 // ===== Inicio =====
 function iniciar() {
+  iniciarApariencia();
+
   // Si hay una clave guardada en esta sesión, la rellenamos
   const claveGuardada = obtenerClave();
   if (claveGuardada) {
@@ -72,6 +80,12 @@ function iniciar() {
   btnNuevo.addEventListener('click', nuevoChat);
   btnPensamiento.addEventListener('click', alternarPensamiento);
   formChat.addEventListener('submit', enviarMensaje);
+  // Las sugerencias envían su texto como si la persona lo hubiera escrito
+  sugerencias.forEach((b) => b.addEventListener('click', () => {
+    if (enviando) return;
+    textarea.value = b.dataset.texto;
+    formChat.requestSubmit();
+  }));
   textarea.addEventListener('input', ajustarAltura);
   textarea.addEventListener('keydown', manejarTeclado);
 }
@@ -122,6 +136,59 @@ function alternarBarraLateral() {
 
   app.classList.toggle(claseActiva);
   btnSidebar.setAttribute('aria-expanded', String(estaOculta));
+}
+
+// ===== Apariencia (tema claro/oscuro y color de labial) =====
+
+// El script del <head> ya aplicó el tema guardado; aquí solo conectamos los controles
+function iniciarApariencia() {
+  sincronizarTema(document.documentElement.dataset.tema);
+  sincronizarAcento(document.documentElement.dataset.acento);
+  btnTema.addEventListener('click', alternarTema);
+  opcionesTema.forEach((o) => o.addEventListener('click', () => elegirTema(o.dataset.tema)));
+  muestras.forEach((m) => m.addEventListener('click', () => elegirAcento(m.dataset.acento)));
+
+  // Si nunca se eligió un tema, seguimos el del sistema operativo
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!leerPreferencia(TEMA_STORAGE)) sincronizarTema(e.matches ? 'oscuro' : 'claro');
+  });
+}
+
+function leerPreferencia(clave) {
+  try { return localStorage.getItem(clave); } catch { return null; }
+}
+
+function guardarPreferencia(clave, valor) {
+  try { localStorage.setItem(clave, valor); } catch { /* almacenamiento no disponible */ }
+}
+
+function sincronizarTema(tema) {
+  document.documentElement.dataset.tema = tema;
+  btnTema.setAttribute('aria-checked', String(tema === 'oscuro'));
+  opcionesTema.forEach((o) => o.setAttribute('aria-checked', String(o.dataset.tema === tema)));
+}
+
+// El botón de la barra superior alterna entre oscuro y claro (desde Nude pasa a oscuro)
+function alternarTema() {
+  elegirTema(document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro');
+}
+
+function elegirTema(tema) {
+  const raiz = document.documentElement;
+  raiz.classList.add('cambiando'); // activa la transición suave de colores
+  sincronizarTema(tema);
+  guardarPreferencia(TEMA_STORAGE, tema);
+  setTimeout(() => raiz.classList.remove('cambiando'), 450);
+}
+
+function sincronizarAcento(acento) {
+  document.documentElement.dataset.acento = acento;
+  muestras.forEach((m) => m.setAttribute('aria-checked', String(m.dataset.acento === acento)));
+}
+
+function elegirAcento(acento) {
+  sincronizarAcento(acento);
+  guardarPreferencia(ACENTO_STORAGE, acento);
 }
 
 // Refleja el estado del modo pensamiento en el chip
