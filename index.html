@@ -5,8 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Valentina · Asesora de maquillaje</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Aplica el tema guardado antes de pintar, para evitar un parpadeo -->
+  <script>
+    (function () {
+      var raiz = document.documentElement, tema = null, acento = null;
+      try { tema = localStorage.getItem('tema_interfaz'); acento = localStorage.getItem('acento_interfaz'); } catch (e) {}
+      raiz.dataset.tema = tema || (matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'oscuro');
+      raiz.dataset.acento = acento || 'peonia';
+    })();
+  </script>
 </head>
 <body>
+  <div class="fondo-decor" aria-hidden="true"><span></span><span></span></div>
+
   <div class="app menu-oculto" id="app">
 
     <!-- Barra lateral: configuración de la clave de Alibaba Cloud (Model Studio) -->
@@ -23,6 +37,25 @@
       </form>
 
       <p id="aviso-clave" class="aviso" role="status"></p>
+
+      <section class="apariencia" aria-labelledby="titulo-tema">
+        <h3 id="titulo-tema">Tema</h3>
+        <div class="opciones-tema" role="radiogroup" aria-labelledby="titulo-tema">
+          <button type="button" class="opcion-tema" role="radio" aria-checked="false" data-tema="oscuro">Oscuro</button>
+          <button type="button" class="opcion-tema" role="radio" aria-checked="false" data-tema="claro">Claro</button>
+          <button type="button" class="opcion-tema" role="radio" aria-checked="false" data-tema="nude">Nude</button>
+        </div>
+      </section>
+
+      <section class="apariencia" aria-labelledby="titulo-acento">
+        <h3 id="titulo-acento">Color de labial</h3>
+        <div class="muestras" role="radiogroup" aria-labelledby="titulo-acento">
+          <button type="button" class="muestra" role="radio" aria-checked="false" data-acento="peonia" aria-label="Peonía" title="Peonía"></button>
+          <button type="button" class="muestra" role="radio" aria-checked="false" data-acento="vino" aria-label="Vino" title="Vino"></button>
+          <button type="button" class="muestra" role="radio" aria-checked="false" data-acento="malva" aria-label="Malva" title="Malva"></button>
+          <button type="button" class="muestra" role="radio" aria-checked="false" data-acento="cobre" aria-label="Cobre" title="Cobre"></button>
+        </div>
+      </section>
     </aside>
 
     <div class="contenido">
@@ -36,17 +69,34 @@
         </div>
         <button id="btn-sidebar" class="btn-icono" aria-label="Mostrar u ocultar barra lateral" aria-controls="sidebar" aria-expanded="false">☰</button>
         <button id="btn-nuevo" class="btn-icono" aria-label="Nuevo chat">+</button>
+        <button id="btn-tema" class="btn-icono btn-tema" role="switch" aria-checked="true" aria-label="Modo oscuro" title="Cambiar entre modo claro y oscuro">
+          <svg class="icono-sol" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M5.3 18.7l1.5-1.5M17.2 6.8l1.5-1.5"/></svg>
+          <svg class="icono-luna" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+        </button>
       </header>
 
       <!-- Zona de conversación -->
       <main class="chat" id="chat">
         <section class="bienvenida" id="bienvenida">
-          <div class="logo logo-grande" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="44" height="44">
-              <path fill="currentColor" d="M12 2c-1.7 2.8-6 4.6-6 9a6 6 0 0 0 12 0c0-4.4-4.3-6.2-6-9z"/>
+          <div class="hero-labial" aria-hidden="true">
+            <svg class="labial" viewBox="0 0 100 150">
+              <g class="labial-barra">
+                <path class="l-barra" d="M38 82V44l24-14v52z"/>
+                <path class="l-brillo" d="M42 82V47l4-2.4V82z"/>
+              </g>
+              <rect class="l-oro" x="34" y="78" width="32" height="14" rx="2"/>
+              <rect class="l-tubo" x="30" y="92" width="40" height="52" rx="5"/>
+              <rect class="l-oro" x="30" y="92" width="40" height="8"/>
+              <rect class="l-brillo" x="35" y="106" width="4" height="34" rx="2"/>
             </svg>
           </div>
           <h1>¡Hola! ¿De qué quieres hablar hoy?</h1>
+          <div class="sugerencias">
+            <button type="button" class="sugerencia" data-texto="Tengo piel grasa, ¿qué base me conviene?">Tengo piel grasa, ¿qué base me conviene?</button>
+            <button type="button" class="sugerencia" data-texto="Quiero un look natural para el día">Quiero un look natural para el día</button>
+            <button type="button" class="sugerencia" data-texto="Busco un labial para una boda">Busco un labial para una boda</button>
+            <button type="button" class="sugerencia" data-texto="¿Cómo elijo el tono de mi corrector?">¿Cómo elijo el tono de mi corrector?</button>
+          </div>
         </section>
         <div class="mensajes" id="mensajes"></div>
       </main>
